@@ -1,154 +1,141 @@
-/* Data and state */
 const state = { background: 0, time: 0, shape: 0, material: 0 };
+const preloadedImages = [];
 
-/* Option previews */
-function createOptionButton(item, index, selected, onSelect) {
+function preloadImages(items) {
+  items.forEach(({ image }) => {
+    const preload = new Image();
+    preload.src = image;
+    preloadedImages.push(preload);
+  });
+}
+
+function showPreview(container, item) {
+  container.dataset.imagePath = item.image;
+  const image = new Image();
+  image.alt = `${item.name} 샘플 이미지`;
+  image.decoding = "async";
+
+  image.onload = () => {
+    if (container.dataset.imagePath !== item.image) return;
+    container.replaceChildren(image);
+  };
+
+  image.onerror = () => {
+    if (container.dataset.imagePath !== item.image || container.querySelector("img")) return;
+    container.replaceChildren();
+  };
+
+  image.src = item.image;
+}
+
+function createOptionButton(item, isSelected, onSelect) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "option-button";
-  button.setAttribute("aria-pressed", String(index === selected));
+  button.setAttribute("aria-pressed", String(isSelected));
   button.innerHTML = `<span class="swatch" style="--swatch:${item.color}"></span><span>${item.name}</span>`;
   button.addEventListener("click", onSelect);
   return button;
 }
 
-const preloadedImages = [];
-
-function preloadImages(items) {
-  items.forEach((item) => {
-    if (preloadedImages.some((image) => image.src.endsWith(item.image))) return;
-    const image = new Image();
-    image.src = item.image;
-    preloadedImages.push(image);
-  });
-}
-
-function makeImagePreview(container, item, variant) {
-  container.dataset.imagePath = item.image;
-  const image = new Image();
-  image.alt = `${item.name} 샘플 이미지`;
-  image.decoding = "async";
-  image.onload = () => {
-    if (container.dataset.imagePath !== item.image) return;
-    container.replaceChildren(image);
-    container.classList.add("is-loaded");
-  };
-  image.onerror = () => {
-    if (container.dataset.imagePath !== item.image || container.querySelector("img")) return;
-    container.replaceChildren();
-    container.classList.remove("is-loaded");
-  };
-  image.src = item.image;
-  if (variant) container.dataset.variant = variant;
-}
-
-function renderSelector(config) {
-  const { key, items, optionsId, previewId, nameId, pathId } = config;
+function renderSelector({ key, items, optionsId, previewId }) {
+  const selectedIndex = state[key];
   const options = document.getElementById(optionsId);
-  const selected = state[key];
-  options.replaceChildren(...items.map((item, index) => createOptionButton(item, index, selected, () => {
-    state[key] = index;
-    renderSelector(config);
-  })));
-  const item = items[selected];
-  makeImagePreview(document.getElementById(previewId), item, key);
-  const nameElement = document.getElementById(nameId);
-  const pathElement = document.getElementById(pathId);
-  if (nameElement) nameElement.textContent = item.name;
-  if (pathElement) pathElement.textContent = item.image;
+
+  options.replaceChildren(...items.map((item, index) =>
+    createOptionButton(item, index === selectedIndex, () => {
+      state[key] = index;
+      renderSelector({ key, items, optionsId, previewId });
+    })
+  ));
+
+  showPreview(document.getElementById(previewId), items[selectedIndex]);
 }
 
 function renderDeliveries() {
   const grid = document.getElementById("delivery-grid");
-  pageData.deliveries.forEach((item, index) => {
-    const article = document.createElement("article");
-    article.className = "delivery-item";
+  const cards = pageData.deliveries.map((item, index) => {
+    const card = document.createElement("article");
+    card.className = "delivery-item";
     const title = document.createElement("h3");
-    title.textContent = `${String(index + 1).padStart(2, "0")}  ${item.name}`;
-    const frame = document.createElement("div");
-    frame.className = "preview-frame preview-frame--delivery";
-    makeImagePreview(frame, item, "delivery");
-    article.append(title, frame);
-    grid.append(article);
+    title.textContent = `${index + 1}. ${item.name}`;
+    const preview = document.createElement("div");
+    preview.className = "preview-frame preview-frame--delivery";
+    showPreview(preview, item);
+    card.append(title, preview);
+    return card;
   });
+  grid.replaceChildren(...cards);
+}
+
+function fileNumber(path) {
+  const match = path.match(/(\d+)(?=\.[^.]+$)/);
+  return match ? Number(match[1]) : 0;
 }
 
 function renderPortfolio() {
   const track = document.getElementById("portfolio-track");
   const { prefix, extension, maxItems, files = [] } = pageData.portfolio;
-  const portfolioImages = (files.length > 0
-    ? files
-    : Array.from({ length: maxItems }, (_, index) => `${prefix}${String(index + 1).padStart(2, "0")}${extension}`)
-  ).reverse();
-  let checkedImages = 0;
-  let visibleImages = 0;
+  const imagePaths = files.length
+    ? [...files]
+    : Array.from({ length: maxItems }, (_, index) => `${prefix}${String(index + 1).padStart(2, "0")}${extension}`);
 
-  const finishImageCheck = () => {
-    checkedImages += 1;
-    if (checkedImages !== portfolioImages.length || visibleImages !== 0) return;
-    const article = document.createElement("article");
-    article.className = "portfolio-item";
-    const frame = document.createElement("div");
-    frame.className = "preview-frame";
-    const placeholder = document.createElement("div");
-    placeholder.className = "placeholder";
-    placeholder.innerHTML = "<span>작업 포트폴리오</span><small>이미지를 추가하면 이곳에 표시됩니다.</small>";
-    frame.append(placeholder);
-    article.append(frame);
-    track.append(article);
+  // 큰 번호가 가장 먼저 보이도록 정렬합니다. (Portfolio_09 → Portfolio_08 → ...)
+  imagePaths.sort((a, b) => fileNumber(b) - fileNumber(a));
+
+  let checked = 0;
+  let visible = 0;
+  const showEmptyMessage = () => {
+    checked += 1;
+    if (checked !== imagePaths.length || visible) return;
+    track.innerHTML = '<article class="portfolio-item"><div class="preview-frame placeholder">등록된 포트폴리오 이미지가 없습니다.</div></article>';
   };
 
-  portfolioImages.forEach((imagePath, arrayIndex) => {
-    const number = String(portfolioImages.length - arrayIndex).padStart(2, "0");
-    const item = {
-      image: imagePath,
-      alt: `FANCY PLANET 작업 포트폴리오 ${number}`
-    };
-    const article = document.createElement("article");
-    article.className = "portfolio-item";
-    article.style.order = String(arrayIndex + 1);
-    const frame = document.createElement("div");
-    frame.className = "preview-frame";
+  imagePaths.forEach((path, order) => {
     const image = new Image();
-    image.alt = item.alt;
+    image.alt = "FANCY PLANET 작업 포트폴리오";
     image.onload = () => {
+      const item = document.createElement("article");
+      item.className = "portfolio-item";
+      item.style.order = String(order);
+      const frame = document.createElement("div");
+      frame.className = "preview-frame";
       frame.append(image);
-      article.append(frame);
-      track.append(article);
-      visibleImages += 1;
-      finishImageCheck();
+      item.append(frame);
+      track.append(item);
+      visible += 1;
+      showEmptyMessage();
     };
-    image.onerror = () => {
-      finishImageCheck();
-    };
-    image.src = item.image;
+    image.onerror = showEmptyMessage;
+    image.src = path;
   });
 
-  const movePortfolio = (direction) => {
-    const amount = track.querySelector(".portfolio-item")?.offsetWidth || 300;
-    track.scrollBy({ left: direction * (amount + 16), behavior: "smooth" });
+  const move = (direction) => {
+    const width = track.querySelector(".portfolio-item")?.offsetWidth || 300;
+    track.scrollBy({ left: direction * (width + 16), behavior: "smooth" });
   };
-  document.getElementById("portfolio-prev").addEventListener("click", () => movePortfolio(-1));
-  document.getElementById("portfolio-next").addEventListener("click", () => movePortfolio(1));
+
+  document.getElementById("portfolio-prev").addEventListener("click", () => move(-1));
+  document.getElementById("portfolio-next").addEventListener("click", () => move(1));
 }
 
 function renderNotices() {
   const list = document.getElementById("notice-list");
-  pageData.notices.forEach((notice, index) => {
-    const article = document.createElement("article");
-    article.className = "notice-item";
-    article.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><p></p>`;
-    article.querySelector("p").textContent = notice;
-    list.append(article);
+  const notices = pageData.notices.map((notice, index) => {
+    const item = document.createElement("article");
+    item.className = "notice-item";
+    item.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><p></p>`;
+    item.querySelector("p").textContent = notice;
+    return item;
   });
+  list.replaceChildren(...notices);
 }
 
-/* Inquiry form */
 function renderInquiryFields() {
   const container = document.getElementById("inquiry-fields");
-  pageData.inquiryFields.forEach((field, index) => {
-    const fieldWrap = document.createElement("div");
-    fieldWrap.className = "form-field";
+  const fields = pageData.inquiryFields.map((field, index) => {
+    const wrap = document.createElement("div");
+    wrap.className = "form-field";
     const number = document.createElement("span");
     number.className = "form-field__number";
     number.textContent = String(index + 1).padStart(2, "0");
@@ -159,132 +146,102 @@ function renderInquiryFields() {
     const description = document.createElement("small");
     description.className = "form-field__description";
     description.textContent = field.description;
-    let control;
-    if (field.type === "textarea") {
-      control = document.createElement("textarea");
-      control.rows = 3;
-      control.placeholder = field.placeholder;
-    } else if (field.type === "select") {
-      control = document.createElement("select");
-      field.options.forEach((optionText) => {
-        const option = document.createElement("option");
-        option.value = optionText;
-        option.textContent = optionText;
-        control.append(option);
-      });
-    } else {
-      control = document.createElement("input");
-      control.type = field.type;
-      control.placeholder = field.placeholder;
-    }
-    control.id = field.id;
-    control.name = field.id;
+    const control = createFieldControl(field);
     content.append(label, description, control);
-    fieldWrap.append(number, content);
-    container.append(fieldWrap);
+    wrap.append(number, content);
+    return wrap;
   });
+  container.replaceChildren(...fields);
 }
 
-function buildInquiryText() {
-  const answers = pageData.inquiryFields.map((field, index) => {
+function createFieldControl(field) {
+  let control;
+  if (field.type === "textarea") {
+    control = document.createElement("textarea");
+    control.rows = 3;
+  } else if (field.type === "select") {
+    control = document.createElement("select");
+    field.options.forEach((optionText) => control.add(new Option(optionText, optionText)));
+  } else {
+    control = document.createElement("input");
+    control.type = field.type;
+  }
+  control.id = field.id;
+  control.name = field.id;
+  control.placeholder = field.placeholder || "";
+  return control;
+}
+
+function inquiryText() {
+  return pageData.inquiryFields.map((field, index) => {
     const value = document.getElementById(field.id).value.trim();
     return `${index + 1}. ${field.label}\n${value}`;
-  });
-  return answers.join("\n\n");
+  }).join("\n\n");
 }
 
-let copyStatusTimeout;
+let statusTimer;
 function showCopyStatus(message) {
   const status = document.getElementById("copy-status");
   status.textContent = message;
   status.classList.add("is-visible");
-  window.clearTimeout(copyStatusTimeout);
-  copyStatusTimeout = window.setTimeout(() => status.classList.remove("is-visible"), 2600);
+  window.clearTimeout(statusTimer);
+  statusTimer = window.setTimeout(() => status.classList.remove("is-visible"), 2600);
 }
 
-function copyWithSelection(text) {
+function legacyCopy(text) {
   const textarea = document.createElement("textarea");
   textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none";
+  textarea.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
   document.body.append(textarea);
-  textarea.focus({ preventScroll: true });
   textarea.select();
-  textarea.setSelectionRange(0, textarea.value.length);
   const copied = document.execCommand("copy");
   textarea.remove();
   return copied;
 }
 
 async function copyInquiry() {
-  const text = buildInquiryText();
+  const text = inquiryText();
   try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      showCopyStatus("문의 내용이 복사되었습니다.");
-      return;
-    }
-    if (copyWithSelection(text)) {
-      showCopyStatus("문의 내용이 복사되었습니다.");
-      return;
-    }
-    throw new Error("Clipboard is unavailable");
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+    else if (!legacyCopy(text)) throw new Error("Copy failed");
+    showCopyStatus("문의 내용이 복사되었습니다.");
   } catch {
-    const copied = copyWithSelection(text);
-    showCopyStatus(copied ? "문의 내용이 복사되었습니다." : "복사 권한이 차단되었습니다. 브라우저에서 복사를 허용한 뒤 다시 시도해주세요.");
+    showCopyStatus(legacyCopy(text) ? "문의 내용이 복사되었습니다." : "복사 권한을 허용한 뒤 다시 시도해주세요.");
   }
 }
 
-/* Current navigation marker */
 function setupNavigationMarker() {
+  if (!("IntersectionObserver" in window)) return;
   const links = [...document.querySelectorAll(".quick-nav a")];
   const sections = links.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
-  if (!("IntersectionObserver" in window)) return;
   const observer = new IntersectionObserver((entries) => {
-    const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (!visible) return;
-    links.forEach((link) => link.classList.toggle("is-current", link.getAttribute("href") === `#${visible.target.id}`));
+    const current = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!current) return;
+    links.forEach((link) => link.classList.toggle("is-current", link.getAttribute("href") === `#${current.target.id}`));
   }, { rootMargin: "-35% 0px -55% 0px", threshold: [0.01, 0.15] });
   sections.forEach((section) => observer.observe(section));
 }
 
-preloadImages([
-  ...pageData.backgrounds,
-  ...pageData.times,
-  ...pageData.shapes,
-  ...pageData.materials
-]);
+function reportEmbedHeight() {
+  if (window.parent === window) return;
+  const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+  window.parent.postMessage({ type: "fancy-planet:resize", height }, "*");
+}
 
-renderSelector({ key: "background", items: pageData.backgrounds, optionsId: "background-options", previewId: "background-preview", nameId: "background-name", pathId: "background-path" });
-renderSelector({ key: "time", items: pageData.times, optionsId: "time-options", previewId: "time-preview", nameId: "time-name", pathId: "time-path" });
-renderSelector({ key: "shape", items: pageData.shapes, optionsId: "shape-options", previewId: "shape-preview", nameId: "shape-name", pathId: "shape-path" });
-renderSelector({ key: "material", items: pageData.materials, optionsId: "material-options", previewId: "material-preview", nameId: "material-name", pathId: "material-path" });
+preloadImages([...pageData.backgrounds, ...pageData.times, ...pageData.shapes, ...pageData.materials]);
+renderSelector({ key: "background", items: pageData.backgrounds, optionsId: "background-options", previewId: "background-preview" });
+renderSelector({ key: "time", items: pageData.times, optionsId: "time-options", previewId: "time-preview" });
+renderSelector({ key: "shape", items: pageData.shapes, optionsId: "shape-options", previewId: "shape-preview" });
+renderSelector({ key: "material", items: pageData.materials, optionsId: "material-options", previewId: "material-preview" });
 renderDeliveries();
 renderPortfolio();
 renderNotices();
 renderInquiryFields();
 document.getElementById("copy-inquiry").addEventListener("click", copyInquiry);
 setupNavigationMarker();
-
-/* Artmug iframe bridge: report the document height to the parent page. */
-function reportEmbedHeight() {
-  if (window.parent === window) return;
-  const height = Math.max(
-    document.documentElement.scrollHeight,
-    document.body.scrollHeight,
-    document.documentElement.offsetHeight,
-    document.body.offsetHeight
-  );
-  window.parent.postMessage({ type: "fancy-planet:resize", height }, "*");
-}
-
 window.addEventListener("load", reportEmbedHeight);
 window.addEventListener("resize", reportEmbedHeight);
 window.addEventListener("message", (event) => {
   if (event.data?.type === "fancy-planet:request-height") reportEmbedHeight();
 });
-
-if ("ResizeObserver" in window) {
-  const observer = new ResizeObserver(reportEmbedHeight);
-  observer.observe(document.documentElement);
-}
+if ("ResizeObserver" in window) new ResizeObserver(reportEmbedHeight).observe(document.documentElement);
