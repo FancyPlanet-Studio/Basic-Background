@@ -1,12 +1,12 @@
 const pageData = {
   backgrounds: [
-    { id: "pastel-blue", name: "파스텔 블루", image: "Artmug_Basic A Room_Assets/Sample/Pastel Blue.png", color: "#9db9dc" },
-    { id: "rose-pink", name: "로즈 핑크", image: "Artmug_Basic A Room_Assets\Sample\Rose Pink.png", color: "#e7acb1" },
-    { id: "butter-yellow", name: "버터 옐로우", image: "Artmug_Basic A Room_Assets\Sample\Butter Yellow.png", color: "#dfce91" },
-    { id: "jet-black", name: "제트 블랙", image: "Artmug_Basic A Room_Assets\Sample\Jet Black.png", color: "#343437" },
-    { id: "lavender-purple", name: "라벤더 퍼플", image: "Artmug_Basic A Room_Assets\Sample\Lavender Purple.png.png", color: "#aaa0dc" },
-    { id: "kotori-beige", name: "코토리 베이지", image: "Artmug_Basic A Room_Assets\Sample\Kotori Beige.png", color: "#c3a88e" }
-  ],
+  { id: "pastel-blue", name: "파스텔 블루", image: "Artmug_Basic A Room_Assets/Sample/Pastel Blue.png", color: "#9db9dc" },
+  { id: "rose-pink", name: "로즈 핑크", image: "Artmug_Basic A Room_Assets/Sample/Rose Pink.png", color: "#e7acb1" },
+  { id: "butter-yellow", name: "버터 옐로우", image: "Artmug_Basic A Room_Assets/Sample/Butter Yellow.png", color: "#dfce91" },
+  { id: "jet-black", name: "제트 블랙", image: "Artmug_Basic A Room_Assets/Sample/Jet Black.png", color: "#343437" },
+  { id: "lavender-purple", name: "라벤더 퍼플", image: "Artmug_Basic A Room_Assets/Sample/Lavender Purple.png", color: "#aaa0dc" },
+  { id: "kotori-beige", name: "코토리 베이지", image: "Artmug_Basic A Room_Assets/Sample/Kotori Beige.png", color: "#c3a88e" }
+],
   times: [
     { id: "day", name: "낮 시간대", image: "Artmug_Basic A Room_Assets/Time/Day.png", color: "#a8c5e9" },
     { id: "night", name: "밤 시간대", image: "Artmug_Basic A Room_Assets/Time/Night.png", color: "#3a4b87" },
