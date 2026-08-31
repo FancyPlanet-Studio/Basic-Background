@@ -222,9 +222,26 @@ function setupNavigationMarker() {
   sections.forEach((section) => observer.observe(section));
 }
 
+function setupEmbeddedNavigation() {
+  if (window.parent === window) return;
+
+  document.querySelectorAll(".quick-nav a").forEach((link) => {
+    link.addEventListener("click", () => {
+      const target = document.querySelector(link.getAttribute("href"));
+      if (!target) return;
+
+      window.parent.postMessage({
+        type: "fancy-planet:navigate",
+        top: Math.round(target.getBoundingClientRect().top + window.scrollY)
+      }, "*");
+    });
+  });
+}
+
 function reportEmbedHeight() {
   if (window.parent === window) return;
-  const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+  // iframe의 임시 높이(예: 9000px)가 아니라 실제 페이지 내용 높이만 전달합니다.
+  const height = Math.ceil(document.body.scrollHeight);
   window.parent.postMessage({ type: "fancy-planet:resize", height }, "*");
 }
 
@@ -239,6 +256,7 @@ renderNotices();
 renderInquiryFields();
 document.getElementById("copy-inquiry").addEventListener("click", copyInquiry);
 setupNavigationMarker();
+setupEmbeddedNavigation();
 window.addEventListener("load", reportEmbedHeight);
 window.addEventListener("resize", reportEmbedHeight);
 window.addEventListener("message", (event) => {
