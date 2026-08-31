@@ -1,35 +1,35 @@
 const pageData = {
   backgrounds: [
-    { id: "pastel-blue", name: "파스텔 블루", image: "assets/background/pastel-blue.png", color: "#9db9dc" },
-    { id: "rose-pink", name: "로즈 핑크", image: "assets/background/rose-pink.png", color: "#e7acb1" },
-    { id: "butter-yellow", name: "버터 옐로우", image: "assets/background/butter-yellow.png", color: "#dfce91" },
-    { id: "jet-black", name: "제트 블랙", image: "assets/background/jet-black.png", color: "#343437" },
-    { id: "lavender-purple", name: "라벤더 퍼플", image: "assets/background/lavender-purple.png", color: "#aaa0dc" },
-    { id: "kotori-beige", name: "코토리 베이지", image: "assets/background/kotori-beige.png", color: "#c3a88e" }
+    { id: "pastel-blue", name: "파스텔 블루", image: "Artmug_Basic A Room_Assets/Sample/Pastel Blue.png", color: "#9db9dc" },
+    { id: "rose-pink", name: "로즈 핑크", image: "Artmug_Basic A Room_Assets\Sample\Rose Pink.png", color: "#e7acb1" },
+    { id: "butter-yellow", name: "버터 옐로우", image: "Artmug_Basic A Room_Assets\Sample\Butter Yellow.png", color: "#dfce91" },
+    { id: "jet-black", name: "제트 블랙", image: "Artmug_Basic A Room_Assets\Sample\Jet Black.png", color: "#343437" },
+    { id: "lavender-purple", name: "라벤더 퍼플", image: "Artmug_Basic A Room_Assets\Sample\Lavender Purple.png.png", color: "#aaa0dc" },
+    { id: "kotori-beige", name: "코토리 베이지", image: "Artmug_Basic A Room_Assets\Sample\Kotori Beige.png", color: "#c3a88e" }
   ],
   times: [
-    { id: "day", name: "낮 시간대", image: "assets/time/day.png", color: "#a8c5e9" },
-    { id: "night", name: "밤 시간대", image: "assets/time/night.png", color: "#3a4b87" },
-    { id: "sunset", name: "노을 시간대", image: "assets/time/sunset.png", color: "#cf9db8" }
+    { id: "day", name: "낮 시간대", image: "Artmug_Basic A Room_Assets/Time/Day.png", color: "#a8c5e9" },
+    { id: "night", name: "밤 시간대", image: "Artmug_Basic A Room_Assets/Time/Night.png", color: "#3a4b87" },
+    { id: "sunset", name: "노을 시간대", image: "Artmug_Basic A Room_Assets/Time/Sunset.png", color: "#cf9db8" }
   ],
   shapes: [
-    { id: "shape-a", name: "A 타입", image: "assets/chat/shape-a.png", color: "#a4a4d9" },
-    { id: "shape-b", name: "B 타입", image: "assets/chat/shape-b.png", color: "#a4a4d9" },
-    { id: "shape-c", name: "C 타입", image: "assets/chat/shape-c.png", color: "#a4a4d9" }
+    { id: "shape-a", name: "A 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_A.png", color: "#a4a4d9" },
+    { id: "shape-b", name: "B 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_B.png", color: "#a4a4d9" },
+    { id: "shape-c", name: "C 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_C.png", color: "#a4a4d9" }
   ],
   materials: [
-    { id: "material-pearl", name: "펄", image: "assets/chat/material-pearl.png", color: "#b7b2d3" },
-    { id: "material-matte", name: "매트", image: "assets/chat/material-matte.png", color: "#a5a4cf" },
-    { id: "material-glossy", name: "글로시", image: "assets/chat/material-glossy.png", color: "#6979c1" }
+    { id: "material-pearl", name: "펄", image: "Artmug_Basic A Room_Assets/Chat/Material_Pearl.png", color: "#b7b2d3" },
+    { id: "material-matte", name: "매트", image: "Artmug_Basic A Room_Assets/Chat/Material_Matte.png", color: "#a5a4cf" },
+    { id: "material-glossy", name: "글로시", image: "Artmug_Basic A Room_Assets/Chat/Material_Glossy.png", color: "#6979c1" }
   ],
   deliveries: [
-    { id: "room", name: "방 전경", image: "assets/delivery/room.png" },
-    { id: "desk-chat", name: "책상 / 채팅창 O", image: "assets/delivery/desk-chat.png" },
-    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: "assets/delivery/desk-no-chat.png" },
-    { id: "chat-window", name: "채팅창", image: "assets/delivery/chat-window.png" }
+    { id: "room", name: "방 전경", image: "Artmug_Basic A Room_Assets/Deliveries/Room.png" },
+    { id: "desk-chat", name: "책상 / 채팅창 O", image: "Artmug_Basic A Room_Assets/Deliveries/Desk_Chat O.png" },
+    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: "aArtmug_Basic A Room_Assets/Deliveries/Desk_Chat X.png" },
+    { id: "chat-window", name: "채팅창", image: "Artmug_Basic A Room_Assets/Deliveries/Chat.png" }
   ],
   portfolio: {
-    prefix: "assets/portfolio/portfolio-",
+    prefix: "Artmug_Basic A Room_Assets/Portfolio/Portfolio_",
     extension: ".png",
     maxItems: 50
   },
