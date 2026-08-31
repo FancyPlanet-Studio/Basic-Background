@@ -225,7 +225,7 @@ function setupNavigationMarker() {
 function setupEmbeddedNavigation() {
   if (window.parent === window) return;
 
-  document.querySelectorAll(".quick-nav a").forEach((link) => {
+  document.querySelectorAll(".quick-nav a, .footer a[href^='#']").forEach((link) => {
     link.addEventListener("click", () => {
       const target = document.querySelector(link.getAttribute("href"));
       if (!target) return;
