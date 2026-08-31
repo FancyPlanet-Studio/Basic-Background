@@ -1,35 +1,40 @@
+/* 이미지 파일명이나 경로를 바꿀 때는 아래 따옴표 안의 경로만 수정하세요. */
+const assetRoot = "Artmug_Basic A Room_Assets";
+
 const pageData = {
   backgrounds: [
-  { id: "pastel-blue", name: "파스텔 블루", image: "Artmug_Basic A Room_Assets/Sample/Pastel Blue.png", color: "#9db9dc" },
-  { id: "rose-pink", name: "로즈 핑크", image: "Artmug_Basic A Room_Assets/Sample/Rose Pink.png", color: "#e7acb1" },
-  { id: "butter-yellow", name: "버터 옐로우", image: "Artmug_Basic A Room_Assets/Sample/Butter Yellow.png", color: "#dfce91" },
-  { id: "jet-black", name: "제트 블랙", image: "Artmug_Basic A Room_Assets/Sample/Jet Black.png", color: "#343437" },
-  { id: "lavender-purple", name: "라벤더 퍼플", image: "Artmug_Basic A Room_Assets/Sample/Lavender Purple.png", color: "#aaa0dc" },
-  { id: "kotori-beige", name: "코토리 베이지", image: "Artmug_Basic A Room_Assets/Sample/Kotori Beige.png", color: "#c3a88e" }
-],
+    { id: "pastel-blue", name: "파스텔 블루", image: `${assetRoot}/Sample/Pastel Blue.png`, color: "#9db9dc" },
+    { id: "rose-pink", name: "로즈 핑크", image: `${assetRoot}/Sample/Rose Pink.png`, color: "#e7acb1" },
+    { id: "butter-yellow", name: "버터 옐로우", image: `${assetRoot}/Sample/Butter Yellow.png`, color: "#dfce91" },
+    { id: "jet-black", name: "제트 블랙", image: `${assetRoot}/Sample/Jet Black.png`, color: "#343437" },
+    { id: "lavender-purple", name: "라벤더 퍼플", image: `${assetRoot}/Sample/Lavender Purple.png`, color: "#aaa0dc" },
+    { id: "kotori-beige", name: "코토리 베이지", image: `${assetRoot}/Sample/Kotori Beige.png`, color: "#c3a88e" }
+  ],
   times: [
-    { id: "day", name: "낮 시간대", image: "Artmug_Basic A Room_Assets/Time/Day.png", color: "#a8c5e9" },
-    { id: "night", name: "밤 시간대", image: "Artmug_Basic A Room_Assets/Time/Night.png", color: "#3a4b87" },
-    { id: "sunset", name: "노을 시간대", image: "Artmug_Basic A Room_Assets/Time/Sunset.png", color: "#cf9db8" }
+    { id: "day", name: "낮 시간대", image: `${assetRoot}/Time/Day.png`, color: "#a8c5e9" },
+    { id: "night", name: "밤 시간대", image: `${assetRoot}/Time/Night.png`, color: "#3a4b87" },
+    { id: "sunset", name: "노을 시간대", image: `${assetRoot}/Time/Sunset.png`, color: "#cf9db8" }
   ],
   shapes: [
-    { id: "shape-a", name: "A 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_A.png", color: "#a4a4d9" },
-    { id: "shape-b", name: "B 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_B.png", color: "#a4a4d9" },
-    { id: "shape-c", name: "C 타입", image: "Artmug_Basic A Room_Assets/Chat/Shape_C.png", color: "#a4a4d9" }
+    { id: "shape-a", name: "A 타입", image: `${assetRoot}/Chat/Shape_A.png`, color: "#a4a4d9" },
+    { id: "shape-b", name: "B 타입", image: `${assetRoot}/Chat/Shape_B.png`, color: "#a4a4d9" },
+    { id: "shape-c", name: "C 타입", image: `${assetRoot}/Chat/Shape_C.png`, color: "#a4a4d9" }
   ],
   materials: [
-    { id: "material-pearl", name: "펄", image: "Artmug_Basic A Room_Assets/Chat/Material_Pearl.png", color: "#b7b2d3" },
-    { id: "material-matte", name: "매트", image: "Artmug_Basic A Room_Assets/Chat/Material_Matte.png", color: "#a5a4cf" },
-    { id: "material-glossy", name: "글로시", image: "Artmug_Basic A Room_Assets/Chat/Material_Glossy.png", color: "#6979c1" }
+    { id: "material-pearl", name: "펄", image: `${assetRoot}/Chat/Material_Pearl.png`, color: "#b7b2d3" },
+    { id: "material-matte", name: "매트", image: `${assetRoot}/Chat/Material_Matte.png`, color: "#a5a4cf" },
+    { id: "material-glossy", name: "글로시", image: `${assetRoot}/Chat/Material_Glossy.png`, color: "#6979c1" }
   ],
   deliveries: [
-    { id: "room", name: "방 전경", image: "Artmug_Basic A Room_Assets/Deliveries/Room.png" },
-    { id: "desk-chat", name: "책상 / 채팅창 O", image: "Artmug_Basic A Room_Assets/Deliveries/Desk_Chat O.png" },
-    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: "Artmug_Basic A Room_Assets/Deliveries/Desk_Chat X.png" },
-    { id: "chat-window", name: "채팅창", image: "Artmug_Basic A Room_Assets/Deliveries/Chat.png" }
+    { id: "room", name: "방 전경", image: `${assetRoot}/Deliveries/Room.png` },
+    { id: "desk-chat", name: "책상 / 채팅창 O", image: `${assetRoot}/Deliveries/Desk_Chat O.png` },
+    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: `${assetRoot}/Deliveries/Desk_Chat X.png` },
+    { id: "chat-window", name: "채팅창", image: `${assetRoot}/Deliveries/Chat.png` }
   ],
   portfolio: {
-    prefix: "Artmug_Basic A Room_Assets/Portfolio/Portfolio_",
+    /* Portfolio_01.png, Portfolio_02.png처럼 올리면 큰 번호부터 자동 표시됩니다. */
+    files: [],
+    prefix: `${assetRoot}/Portfolio/Portfolio_`,
     extension: ".png",
     maxItems: 50
   },
