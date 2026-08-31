@@ -25,7 +25,7 @@ const pageData = {
   deliveries: [
     { id: "room", name: "방 전경", image: "Artmug_Basic A Room_Assets/Deliveries/Room.png" },
     { id: "desk-chat", name: "책상 / 채팅창 O", image: "Artmug_Basic A Room_Assets/Deliveries/Desk_Chat O.png" },
-    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: "aArtmug_Basic A Room_Assets/Deliveries/Desk_Chat X.png" },
+    { id: "desk-no-chat", name: "책상 / 채팅창 X", image: "Artmug_Basic A Room_Assets/Deliveries/Desk_Chat X.png" },
     { id: "chat-window", name: "채팅창", image: "Artmug_Basic A Room_Assets/Deliveries/Chat.png" }
   ],
   portfolio: {
