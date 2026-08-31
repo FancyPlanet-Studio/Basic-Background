@@ -12,17 +12,32 @@ function createOptionButton(item, index, selected, onSelect) {
   return button;
 }
 
+const preloadedImages = [];
+
+function preloadImages(items) {
+  items.forEach((item) => {
+    if (preloadedImages.some((image) => image.src.endsWith(item.image))) return;
+    const image = new Image();
+    image.src = item.image;
+    preloadedImages.push(image);
+  });
+}
+
 function makeImagePreview(container, item, variant) {
-  container.replaceChildren();
-  container.classList.remove("is-loaded");
-  const placeholder = document.createElement("div");
-  placeholder.className = "placeholder";
-  placeholder.innerHTML = `<span>${item.name}</span><small>${item.image}</small>`;
-  container.append(placeholder);
+  container.dataset.imagePath = item.image;
   const image = new Image();
   image.alt = `${item.name} 샘플 이미지`;
-  image.onload = () => { container.replaceChildren(image); container.classList.add("is-loaded"); };
-  image.onerror = () => { /* The designed placeholder remains, so no broken image is exposed. */ };
+  image.decoding = "async";
+  image.onload = () => {
+    if (container.dataset.imagePath !== item.image) return;
+    container.replaceChildren(image);
+    container.classList.add("is-loaded");
+  };
+  image.onerror = () => {
+    if (container.dataset.imagePath !== item.image || container.querySelector("img")) return;
+    container.replaceChildren();
+    container.classList.remove("is-loaded");
+  };
   image.src = item.image;
   if (variant) container.dataset.variant = variant;
 }
@@ -37,8 +52,10 @@ function renderSelector(config) {
   })));
   const item = items[selected];
   makeImagePreview(document.getElementById(previewId), item, key);
-  document.getElementById(nameId).textContent = item.name;
-  document.getElementById(pathId).textContent = item.image;
+  const nameElement = document.getElementById(nameId);
+  const pathElement = document.getElementById(pathId);
+  if (nameElement) nameElement.textContent = item.name;
+  if (pathElement) pathElement.textContent = item.image;
 }
 
 function renderDeliveries() {
@@ -58,13 +75,17 @@ function renderDeliveries() {
 
 function renderPortfolio() {
   const track = document.getElementById("portfolio-track");
-  const { prefix, extension, maxItems } = pageData.portfolio;
+  const { prefix, extension, maxItems, files = [] } = pageData.portfolio;
+  const portfolioImages = (files.length > 0
+    ? files
+    : Array.from({ length: maxItems }, (_, index) => `${prefix}${String(index + 1).padStart(2, "0")}${extension}`)
+  ).reverse();
   let checkedImages = 0;
   let visibleImages = 0;
 
   const finishImageCheck = () => {
     checkedImages += 1;
-    if (checkedImages !== maxItems || visibleImages !== 0) return;
+    if (checkedImages !== portfolioImages.length || visibleImages !== 0) return;
     const article = document.createElement("article");
     article.className = "portfolio-item";
     const frame = document.createElement("div");
@@ -77,15 +98,15 @@ function renderPortfolio() {
     track.append(article);
   };
 
-  for (let index = 1; index <= maxItems; index += 1) {
-    const number = String(index).padStart(2, "0");
+  portfolioImages.forEach((imagePath, arrayIndex) => {
+    const number = String(portfolioImages.length - arrayIndex).padStart(2, "0");
     const item = {
-      image: `${prefix}${number}${extension}`,
+      image: imagePath,
       alt: `FANCY PLANET 작업 포트폴리오 ${number}`
     };
     const article = document.createElement("article");
     article.className = "portfolio-item";
-    article.style.order = String(index);
+    article.style.order = String(arrayIndex + 1);
     const frame = document.createElement("div");
     frame.className = "preview-frame";
     const image = new Image();
@@ -101,7 +122,7 @@ function renderPortfolio() {
       finishImageCheck();
     };
     image.src = item.image;
-  }
+  });
 
   const movePortfolio = (direction) => {
     const amount = track.querySelector(".portfolio-item")?.offsetWidth || 300;
@@ -226,6 +247,13 @@ function setupNavigationMarker() {
   }, { rootMargin: "-35% 0px -55% 0px", threshold: [0.01, 0.15] });
   sections.forEach((section) => observer.observe(section));
 }
+
+preloadImages([
+  ...pageData.backgrounds,
+  ...pageData.times,
+  ...pageData.shapes,
+  ...pageData.materials
+]);
 
 renderSelector({ key: "background", items: pageData.backgrounds, optionsId: "background-options", previewId: "background-preview", nameId: "background-name", pathId: "background-path" });
 renderSelector({ key: "time", items: pageData.times, optionsId: "time-options", previewId: "time-preview", nameId: "time-name", pathId: "time-path" });
