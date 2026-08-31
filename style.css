@@ -1,62 +1,290 @@
-@import url("https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@400&display=swap");
+/* Data and state */
+const state = { background: 0, time: 0, shape: 0, material: 0 };
 
-/* 본문·제목·하단 로고용: 페이퍼로지 */
-@font-face {
-  font-family: "Paperozi";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-4Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
+/* Option previews */
+function createOptionButton(item, index, selected, onSelect) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "option-button";
+  button.setAttribute("aria-pressed", String(index === selected));
+  button.innerHTML = `<span class="swatch" style="--swatch:${item.color}"></span><span>${item.name}</span>`;
+  button.addEventListener("click", onSelect);
+  return button;
 }
 
-@font-face {
-  font-family: "Paperozi";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-display: swap;
+const preloadedImages = [];
+
+function preloadImages(items) {
+  items.forEach((item) => {
+    if (preloadedImages.some((image) => image.src.endsWith(item.image))) return;
+    const image = new Image();
+    image.src = item.image;
+    preloadedImages.push(image);
+  });
 }
 
-@font-face {
-  font-family: "Paperozi";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-6SemiBold.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
+function makeImagePreview(container, item, variant) {
+  container.dataset.imagePath = item.image;
+  const image = new Image();
+  image.alt = `${item.name} 샘플 이미지`;
+  image.decoding = "async";
+  image.onload = () => {
+    if (container.dataset.imagePath !== item.image) return;
+    container.replaceChildren(image);
+    container.classList.add("is-loaded");
+  };
+  image.onerror = () => {
+    if (container.dataset.imagePath !== item.image || container.querySelector("img")) return;
+    container.replaceChildren();
+    container.classList.remove("is-loaded");
+  };
+  image.src = item.image;
+  if (variant) container.dataset.variant = variant;
 }
 
-@font-face {
-  font-family: "Paperozi";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-display: swap;
+function renderSelector(config) {
+  const { key, items, optionsId, previewId, nameId, pathId } = config;
+  const options = document.getElementById(optionsId);
+  const selected = state[key];
+  options.replaceChildren(...items.map((item, index) => createOptionButton(item, index, selected, () => {
+    state[key] = index;
+    renderSelector(config);
+  })));
+  const item = items[selected];
+  makeImagePreview(document.getElementById(previewId), item, key);
+  const nameElement = document.getElementById(nameId);
+  const pathElement = document.getElementById(pathId);
+  if (nameElement) nameElement.textContent = item.name;
+  if (pathElement) pathElement.textContent = item.image;
 }
 
-/* ===== 쉽게 바꾸는 디자인 설정 =====
-   글꼴: --sans(본문), --serif(로고)에 원하는 글꼴 이름을 넣으세요.
-   크기: --base-font-size(본문), --heading-font-size(큰 제목)를 숫자로 바꾸세요.
-   예) --base-font-size: 17px; */
-:root{--bg:#f9f7fb;--warm:#fdfcfb;--surface:#fff;--surface-soft:#f1eef8;--text:#2c2938;--muted:#777180;--accent:#8d83bd;--accent-deep:#5e568b;--accent-soft:#dcd6ed;--line:#e4dfec;--line-strong:#d3cbe1;--radius:3px;--content-width:1160px;--sans:"Paperozi",sans-serif;--serif:"Paperozi",sans-serif;--base-font-size:16px;--heading-font-size:41px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;overflow-x:hidden;color:var(--text);background:var(--bg);font-family:var(--sans);font-size:var(--base-font-size);line-height:1.8}button,input,textarea,select{font:inherit}button{color:inherit}a{color:inherit}:focus-visible{outline:2px solid var(--accent-deep);outline-offset:3px}.skip-link{position:fixed;top:-100px;left:16px;z-index:20;padding:8px 12px;background:var(--text);color:#fff;text-decoration:none}.skip-link:focus{top:16px}.content-wrap{width:min(calc(100% - 48px),var(--content-width));margin-inline:auto}.eyebrow{margin:0 0 9px;color:var(--accent-deep);font-size:11px;font-weight:600;letter-spacing:.17em}.section{padding:90px 0;scroll-margin-top:48px}.section h2{margin:0;font-size:clamp(29px,3vw,var(--heading-font-size));font-weight:500;line-height:1.36;letter-spacing:-.075em}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:31px}.section-heading>p{max-width:360px;margin:0;color:var(--muted);font-size:14px;text-align:right}
-.hero{position:relative;min-height:460px;overflow:hidden;background:linear-gradient(115deg,#f2eff8 0%,#fcfbfd 53%,#f6f2f7 100%);border-bottom:1px solid var(--line)}.hero::after{content:"";position:absolute;right:0;bottom:0;left:0;height:50px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent)}.hero__inner{position:relative;z-index:1;display:grid;grid-template-columns:1.35fr .65fr;align-items:center;min-height:460px;gap:80px;padding:62px 0}.hero__copy{max-width:575px}.brand-mark{display:inline-block;margin:0;padding:2px 25px 4px;border:1px solid currentColor;border-radius:50%;font:clamp(22px,2.7vw,34px)/1.15 var(--serif);letter-spacing:-.07em}.hero .brand-mark{display:inline-flex;align-items:center;justify-content:center;min-height:64px;padding:0 38px;font-family:"Libre Bodoni",Georgia,"Times New Roman",serif;font-weight:400;line-height:1}.hero__eyebrow{margin:24px 0 5px;color:var(--accent-deep);font-size:11px;font-weight:600;letter-spacing:.16em}.hero h1{margin:0;font-size:clamp(27px,3.2vw,39px);font-weight:500;letter-spacing:-.08em}.hero__intro{margin:17px 0 0;color:#5e5968;font-size:15px;line-height:1.75}.hero__link{display:inline-flex;align-items:center;gap:23px;margin-top:25px;padding-bottom:5px;border-bottom:1px solid var(--accent);color:#4e4870;font-size:14px;text-decoration:none}.hero__link span{font-size:17px;line-height:1}.hero__seal{position:relative;display:grid;place-items:center;width:min(25vw,275px);aspect-ratio:1;justify-self:end;border:1px solid rgba(141,131,189,.55);border-radius:50%;color:#70689b;text-align:center;transform:rotate(-9deg)}.hero__seal::before,.hero__seal::after{content:"";position:absolute;border:1px solid rgba(141,131,189,.35);border-radius:50%}.hero__seal::before{width:135%;height:48%;transform:rotate(-22deg)}.hero__seal::after{width:5px;height:5px;right:7%;top:21%;border:0;background:var(--accent)}.hero__seal span{font:23px/1 var(--serif);letter-spacing:-.06em}.hero__seal i{width:40px;border-top:1px solid currentColor}.hero__seal small{font-size:8px;letter-spacing:.11em}.hero__orbit{position:absolute;pointer-events:none;border:1px solid rgba(157,148,195,.22);border-radius:50%}.hero__orbit--one{width:650px;height:165px;top:-86px;right:10%;transform:rotate(-25deg)}.hero__orbit--two{width:385px;height:385px;left:-205px;bottom:-250px}
-.quick-nav{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);background:rgba(253,252,251,.96)}.quick-nav__inner{display:flex;justify-content:center;overflow-x:auto;scrollbar-width:none}.quick-nav a{position:relative;flex:0 0 auto;padding:10px 16px;color:var(--muted);font-size:12px;text-decoration:none}.quick-nav a::after{content:"";position:absolute;right:16px;bottom:0;left:16px;height:1px;transform:scaleX(0);background:var(--accent-deep);transition:transform .18s ease}.quick-nav a:hover,.quick-nav a.is-current{color:var(--accent-deep)}.quick-nav a:hover::after,.quick-nav a.is-current::after{transform:scaleX(1)}.intro{padding:74px 0;background:var(--warm)}.intro__grid{display:grid;grid-template-columns:1fr 2.25fr;gap:54px;align-items:start}.intro h2{font-size:clamp(28px,3.2vw,40px)}.intro p:last-child{margin:12px 0 0;color:var(--muted)}.room{padding:82px 0;border-block:1px solid var(--line);background:var(--surface)}.room__grid{display:grid;grid-template-columns:.78fr 1.55fr;gap:82px}.room__heading p:last-child{max-width:250px;margin:14px 0 0;color:var(--muted);font-size:14px}.room__details{border-top:1px solid var(--line-strong)}.room__details article{display:grid;grid-template-columns:43px 1fr;gap:15px;padding:19px 0 20px;border-bottom:1px solid var(--line)}.room__details article>span{color:var(--accent-deep);font-size:12px;font-weight:600}.room h3{margin:0 0 5px;font-size:16px;font-weight:600}.room__details p{margin:0;color:#5f5968;font-size:14px;line-height:1.8}.note{white-space:nowrap}
-.sample-section{padding:82px 0 84px}.sample-section--tint{background:var(--surface-soft)}.preview-section__layout{display:grid;grid-template-columns:265px minmax(0,1fr);align-items:center;gap:56px}.preview-section__layout--reverse{grid-template-columns:minmax(0,1fr) 265px}.preview-section__layout--reverse .preview-section__heading{order:2}.preview-section__heading>p:not(.eyebrow){margin:10px 0 20px;color:var(--muted);font-size:14px}.option-bar{display:flex;flex-wrap:wrap;gap:8px}.option-button{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:5px 10px;border:1px solid var(--line-strong);border-radius:var(--radius);background:rgba(255,255,255,.45);cursor:pointer;font-size:12px;transition:border-color .18s ease,background-color .18s ease,color .18s ease}.option-button:hover{border-color:var(--accent)}.option-button[aria-pressed="true"]{border-color:var(--accent);background:#ebe7f5;color:#4d4676;font-weight:600;box-shadow:inset 0 -1px 0 var(--accent)}.swatch{width:8px;height:8px;border-radius:50%;background:var(--swatch);box-shadow:0 0 0 1px rgba(39,34,54,.12)}.preview-layout{min-width:0}.preview-frame{position:relative;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line-strong);background:#f5f2f8}.preview-frame::before{content:"";position:absolute;z-index:1;top:10px;left:10px;width:22px;height:22px;border-top:1px solid rgba(255,255,255,.75);border-left:1px solid rgba(255,255,255,.75);pointer-events:none}.preview-frame--wide{aspect-ratio:16/9}.preview-frame--chat{aspect-ratio:16/10}.preview-frame--delivery{aspect-ratio:16/9}.preview-frame img{display:block;width:100%;height:100%;object-fit:cover;animation:preview-fade .2s ease}.placeholder{width:100%;height:100%;display:grid;place-content:center;padding:24px;border:9px solid rgba(255,255,255,.25);background:linear-gradient(135deg,#ebe6f3,#f8f6fa);text-align:center}.placeholder span{color:#5c547c;font:clamp(18px,2.5vw,28px)/1.2 var(--serif);letter-spacing:-.04em}.placeholder span::after{content:"IMAGE PLACEHOLDER";display:block;margin-top:7px;color:#8c85a1;font:9px var(--sans);letter-spacing:.15em}.placeholder small{margin-top:12px;color:#827b91;font:11px monospace;overflow-wrap:anywhere}.preview-caption{display:flex;justify-content:space-between;gap:18px;padding:9px 2px 0;color:var(--muted);font-size:12px}.preview-caption b{margin-left:6px;color:var(--text);font-weight:600}.preview-caption small{color:#938d9d;font:10px monospace}.chat{background:var(--warm)}.chat-grid{display:grid;grid-template-columns:1fr 1fr;gap:38px}.chat-group{padding:23px;border:1px solid var(--line);background:rgba(255,255,255,.56)}.chat-group__heading{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}.chat-group__heading span{color:var(--accent-deep);font-size:10px;font-weight:600;letter-spacing:.14em}.chat-group h3{margin:0;font-size:17px;font-weight:600}.chat-group .option-bar{margin-bottom:18px}
-.delivery{padding:84px 0;background:var(--surface)}.delivery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.delivery-item{padding:13px;border-top:1px solid var(--line-strong);background:var(--bg)}.delivery-item h3{margin:0 0 11px;font-size:14px;font-weight:500}.process{padding:76px 0 88px;background:var(--surface-soft)}.process__heading{text-align:center}.process-list{display:flex;max-width:1040px;margin:34px auto 0;padding:0;list-style:none;counter-reset:steps}.process-list li{position:relative;flex:1;padding:40px 10px 0;text-align:center;font-size:14px;counter-increment:steps}.process-list li::before{content:"0" counter(steps);position:absolute;top:0;left:50%;display:grid;place-items:center;width:27px;height:27px;transform:translateX(-50%);border:1px solid var(--accent);border-radius:50%;color:var(--accent-deep);background:#f8f6fc;font-size:10px;font-weight:600}.process-list li:not(:last-child)::after{content:"";position:absolute;top:13px;left:calc(50% + 20px);width:calc(100% - 40px);border-top:1px solid var(--line-strong)}
-.inquiry{padding:90px 0;background:#e9e5f0}.inquiry__grid{display:grid;grid-template-columns:.67fr 1.33fr;align-items:start;gap:65px}.inquiry__intro{position:relative;padding-top:14px}.inquiry__intro>p:not(.eyebrow){max-width:235px;margin:14px 0 0;color:var(--muted);font-size:14px}.inquiry__orbital{position:absolute;width:150px;height:48px;right:25px;bottom:-65px;border:1px solid rgba(126,113,170,.4);border-radius:50%;transform:rotate(-24deg)}.inquiry__orbital::after{content:"";position:absolute;top:-4px;left:14px;width:7px;height:7px;border-radius:50%;background:#9a8fca}.inquiry__form{padding:28px;border:1px solid #d4cde1;background:rgba(255,255,255,.88)}.form-heading{display:flex;justify-content:space-between;gap:18px;align-items:start;padding-bottom:19px;border-bottom:1px solid var(--line)}.form-heading span{color:var(--accent-deep);font-size:10px;font-weight:600;letter-spacing:.16em}.form-heading h3{margin:3px 0 0;font-size:20px;font-weight:500;letter-spacing:-.05em}.form-heading p{margin:0;color:var(--muted);font-size:12px}.form-fields{margin-top:5px}.form-field{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:17px 0;border-bottom:1px solid #eeeaf3}.form-field__number{padding-top:3px;color:var(--accent-deep);font-size:11px;font-weight:600}.form-field label{display:block;margin:0 0 3px;font-size:15px;font-weight:600}.form-field__description{display:block;margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.55}.form-field input,.form-field textarea,.form-field select{width:100%;border:1px solid #ded9e8;border-radius:2px;background:#faf9fc;color:var(--text);outline:none;transition:border-color .18s ease,background-color .18s ease}.form-field input,.form-field select{min-height:39px;padding:8px 10px}.form-field textarea{min-height:78px;padding:9px 10px;resize:vertical}.form-field input::placeholder,.form-field textarea::placeholder{color:#aaa5b4}.form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:var(--accent);background:#fff}.copy-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;margin-top:23px;border:1px solid var(--accent-deep);border-radius:var(--radius);background:var(--accent-deep);color:#fff;cursor:pointer;font-size:14px;font-weight:500;transition:background-color .18s ease}.copy-button span{margin-left:20px;font-size:17px}.copy-button:hover{background:#504879}.copy-status{min-height:22px;margin:7px 0 0;color:#504879;text-align:center;font-size:12px;opacity:0;transition:opacity .2s ease}.copy-status.is-visible{opacity:1}
-.notice{padding:82px 0;background:var(--warm)}.notice-list{border-top:1px solid var(--line-strong)}.notice-item{display:grid;grid-template-columns:55px 1fr;gap:15px;padding:20px 0;border-bottom:1px solid var(--line)}.notice-item>span{color:var(--accent-deep);font-size:11px;font-weight:600}.notice-item p{margin:0;font-size:14px}.notice-extra{margin-top:26px;padding:17px 21px;border-left:2px solid var(--accent-soft);background:#f4f1f7;color:#615b69;font-size:13px}.notice-extra p{margin:0}.notice-extra p+p{margin-top:7px}.footer{padding:42px 24px 34px;background:#373344;color:#f9f7fc;text-align:center}.footer .brand-mark{font-size:23px}.footer>p:not(.brand-mark){margin:12px 0 0;color:#d2cede;font-size:11px;letter-spacing:.08em}.footer a{display:inline-block;margin-top:18px;color:#e5e0ee;font-size:12px;text-decoration:none;border-bottom:1px solid #a69fba}@keyframes preview-fade{from{opacity:.45}to{opacity:1}}
-@media(max-width:900px){.preview-section__layout,.preview-section__layout--reverse{grid-template-columns:1fr;gap:25px}.preview-section__layout--reverse .preview-section__heading{order:0}.preview-section__heading{max-width:600px}.room__grid,.inquiry__grid{gap:44px}.inquiry__grid{grid-template-columns:.78fr 1.22fr}}@media(max-width:768px){.content-wrap{width:min(calc(100% - 32px),var(--content-width))}.section{padding:66px 0}.hero,.hero__inner{min-height:410px}.hero__inner{grid-template-columns:1fr;gap:0;padding:54px 0}.hero__seal{position:absolute;width:165px;right:1%;bottom:38px;opacity:.55}.hero__copy{position:relative;z-index:1}.intro{padding:59px 0}.intro__grid,.room__grid,.inquiry__grid{grid-template-columns:1fr;gap:25px}.room{padding:68px 0}.room__heading p:last-child{max-width:none}.section-heading{display:block}.section-heading>p{margin-top:8px;text-align:left}.chat-grid{gap:18px}.inquiry__intro{padding:0}.inquiry__orbital{right:3%;bottom:-35px}.process-list{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 0}.process-list li::after{display:none}}@media(max-width:480px){body{font-size:15px}.content-wrap{width:min(calc(100% - 28px),var(--content-width))}.hero,.hero__inner{min-height:385px}.hero__inner{padding:45px 0}.hero__seal{width:130px;right:-4%;bottom:35px}.hero__seal span{font-size:16px}.hero__seal small{font-size:6px}.brand-mark{padding-inline:19px}.hero__intro{font-size:14px}.quick-nav a{padding:9px 11px;font-size:11px}.quick-nav a::after{right:11px;left:11px}.section{padding:56px 0}.section h2{font-size:29px}.preview-section__layout{gap:20px}.option-button{min-height:35px;padding-inline:8px;font-size:11px}.preview-caption{display:block;padding-top:7px}.preview-caption small{display:block;margin-top:1px}.chat-group{padding:16px}.delivery-grid{grid-template-columns:1fr}.process-list{grid-template-columns:1fr;gap:12px;margin-top:27px}.process-list li{padding:8px 0 8px 48px;text-align:left}.process-list li::before{top:5px;left:0;transform:none}.inquiry__form{padding:19px 16px}.form-heading{display:block}.form-heading p{margin-top:7px}.form-field{grid-template-columns:33px 1fr;gap:7px;padding:14px 0}.form-field label{font-size:14px}.form-field__description{font-size:11px}.notice-item{grid-template-columns:39px 1fr;gap:7px}.notice-item p{font-size:13px}.notice-extra{padding:15px;font-size:12px}}
-
-/* 직접 조절하는 HERO 로고 수치: 숫자만 바꾸면 됩니다. */
-:root {
-  --hero-logo-height: 70px;
-  --hero-logo-side-padding: 38px;
+function renderDeliveries() {
+  const grid = document.getElementById("delivery-grid");
+  pageData.deliveries.forEach((item, index) => {
+    const article = document.createElement("article");
+    article.className = "delivery-item";
+    const title = document.createElement("h3");
+    title.textContent = `${String(index + 1).padStart(2, "0")}  ${item.name}`;
+    const frame = document.createElement("div");
+    frame.className = "preview-frame preview-frame--delivery";
+    makeImagePreview(frame, item, "delivery");
+    article.append(title, frame);
+    grid.append(article);
+  });
 }
 
-/* 위쪽 FANCY PLANET 로고 글자와 타원 사이의 여백 */
-.hero .brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--hero-logo-height);
-  padding: 0 var(--hero-logo-side-padding);
-  line-height: 1;
+function renderPortfolio() {
+  const track = document.getElementById("portfolio-track");
+  const { prefix, extension, maxItems, files = [] } = pageData.portfolio;
+  const portfolioImages = (files.length > 0
+    ? files
+    : Array.from({ length: maxItems }, (_, index) => `${prefix}${String(index + 1).padStart(2, "0")}${extension}`)
+  ).reverse();
+  let checkedImages = 0;
+  let visibleImages = 0;
+
+  const finishImageCheck = () => {
+    checkedImages += 1;
+    if (checkedImages !== portfolioImages.length || visibleImages !== 0) return;
+    const article = document.createElement("article");
+    article.className = "portfolio-item";
+    const frame = document.createElement("div");
+    frame.className = "preview-frame";
+    const placeholder = document.createElement("div");
+    placeholder.className = "placeholder";
+    placeholder.innerHTML = "<span>작업 포트폴리오</span><small>이미지를 추가하면 이곳에 표시됩니다.</small>";
+    frame.append(placeholder);
+    article.append(frame);
+    track.append(article);
+  };
+
+  portfolioImages.forEach((imagePath, arrayIndex) => {
+    const number = String(portfolioImages.length - arrayIndex).padStart(2, "0");
+    const item = {
+      image: imagePath,
+      alt: `FANCY PLANET 작업 포트폴리오 ${number}`
+    };
+    const article = document.createElement("article");
+    article.className = "portfolio-item";
+    article.style.order = String(arrayIndex + 1);
+    const frame = document.createElement("div");
+    frame.className = "preview-frame";
+    const image = new Image();
+    image.alt = item.alt;
+    image.onload = () => {
+      frame.append(image);
+      article.append(frame);
+      track.append(article);
+      visibleImages += 1;
+      finishImageCheck();
+    };
+    image.onerror = () => {
+      finishImageCheck();
+    };
+    image.src = item.image;
+  });
+
+  const movePortfolio = (direction) => {
+    const amount = track.querySelector(".portfolio-item")?.offsetWidth || 300;
+    track.scrollBy({ left: direction * (amount + 16), behavior: "smooth" });
+  };
+  document.getElementById("portfolio-prev").addEventListener("click", () => movePortfolio(-1));
+  document.getElementById("portfolio-next").addEventListener("click", () => movePortfolio(1));
 }
 
-/* 미리보기 아래의 선택명·파일 경로 문구는 표시하지 않습니다. */
-.preview-caption { display: none; }
+function renderNotices() {
+  const list = document.getElementById("notice-list");
+  pageData.notices.forEach((notice, index) => {
+    const article = document.createElement("article");
+    article.className = "notice-item";
+    article.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><p></p>`;
+    article.querySelector("p").textContent = notice;
+    list.append(article);
+  });
+}
+
+/* Inquiry form */
+function renderInquiryFields() {
+  const container = document.getElementById("inquiry-fields");
+  pageData.inquiryFields.forEach((field, index) => {
+    const fieldWrap = document.createElement("div");
+    fieldWrap.className = "form-field";
+    const number = document.createElement("span");
+    number.className = "form-field__number";
+    number.textContent = String(index + 1).padStart(2, "0");
+    const content = document.createElement("div");
+    const label = document.createElement("label");
+    label.htmlFor = field.id;
+    label.textContent = field.label;
+    const description = document.createElement("small");
+    description.className = "form-field__description";
+    description.textContent = field.description;
+    let control;
+    if (field.type === "textarea") {
+      control = document.createElement("textarea");
+      control.rows = 3;
+      control.placeholder = field.placeholder;
+    } else if (field.type === "select") {
+      control = document.createElement("select");
+      field.options.forEach((optionText) => {
+        const option = document.createElement("option");
+        option.value = optionText;
+        option.textContent = optionText;
+        control.append(option);
+      });
+    } else {
+      control = document.createElement("input");
+      control.type = field.type;
+      control.placeholder = field.placeholder;
+    }
+    control.id = field.id;
+    control.name = field.id;
+    content.append(label, description, control);
+    fieldWrap.append(number, content);
+    container.append(fieldWrap);
+  });
+}
+
+function buildInquiryText() {
+  const answers = pageData.inquiryFields.map((field, index) => {
+    const value = document.getElementById(field.id).value.trim();
+    return `${index + 1}. ${field.label}\n${value}`;
+  });
+  return answers.join("\n\n");
+}
+
+let copyStatusTimeout;
+function showCopyStatus(message) {
+  const status = document.getElementById("copy-status");
+  status.textContent = message;
+  status.classList.add("is-visible");
+  window.clearTimeout(copyStatusTimeout);
+  copyStatusTimeout = window.setTimeout(() => status.classList.remove("is-visible"), 2600);
+}
+
+function copyWithSelection(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none";
+  document.body.append(textarea);
+  textarea.focus({ preventScroll: true });
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  return copied;
+}
+
+async function copyInquiry() {
+  const text = buildInquiryText();
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      showCopyStatus("문의 내용이 복사되었습니다.");
+      return;
+    }
+    if (copyWithSelection(text)) {
+      showCopyStatus("문의 내용이 복사되었습니다.");
+      return;
+    }
+    throw new Error("Clipboard is unavailable");
+  } catch {
+    const copied = copyWithSelection(text);
+    showCopyStatus(copied ? "문의 내용이 복사되었습니다." : "복사 권한이 차단되었습니다. 브라우저에서 복사를 허용한 뒤 다시 시도해주세요.");
+  }
+}
+
+/* Current navigation marker */
+function setupNavigationMarker() {
+  const links = [...document.querySelectorAll(".quick-nav a")];
+  const sections = links.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  if (!("IntersectionObserver" in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    links.forEach((link) => link.classList.toggle("is-current", link.getAttribute("href") === `#${visible.target.id}`));
+  }, { rootMargin: "-35% 0px -55% 0px", threshold: [0.01, 0.15] });
+  sections.forEach((section) => observer.observe(section));
+}
+
+preloadImages([
+  ...pageData.backgrounds,
+  ...pageData.times,
+  ...pageData.shapes,
+  ...pageData.materials
+]);
+
+renderSelector({ key: "background", items: pageData.backgrounds, optionsId: "background-options", previewId: "background-preview", nameId: "background-name", pathId: "background-path" });
+renderSelector({ key: "time", items: pageData.times, optionsId: "time-options", previewId: "time-preview", nameId: "time-name", pathId: "time-path" });
+renderSelector({ key: "shape", items: pageData.shapes, optionsId: "shape-options", previewId: "shape-preview", nameId: "shape-name", pathId: "shape-path" });
+renderSelector({ key: "material", items: pageData.materials, optionsId: "material-options", previewId: "material-preview", nameId: "material-name", pathId: "material-path" });
+renderDeliveries();
+renderPortfolio();
+renderNotices();
+renderInquiryFields();
+document.getElementById("copy-inquiry").addEventListener("click", copyInquiry);
+setupNavigationMarker();
+
+/* Artmug iframe bridge: report the document height to the parent page. */
+function reportEmbedHeight() {
+  if (window.parent === window) return;
+  const height = Math.max(
+    document.documentElement.scrollHeight,
+    document.body.scrollHeight,
+    document.documentElement.offsetHeight,
+    document.body.offsetHeight
+  );
+  window.parent.postMessage({ type: "fancy-planet:resize", height }, "*");
+}
+
+window.addEventListener("load", reportEmbedHeight);
+window.addEventListener("resize", reportEmbedHeight);
+window.addEventListener("message", (event) => {
+  if (event.data?.type === "fancy-planet:request-height") reportEmbedHeight();
+});
+
+if ("ResizeObserver" in window) {
+  const observer = new ResizeObserver(reportEmbedHeight);
+  observer.observe(document.documentElement);
+}
