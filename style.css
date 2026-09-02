@@ -162,7 +162,7 @@ a { color: inherit; }
 .form-field__number { padding-top: 3px; color: var(--accent-deep); font-size: 11px; font-weight: 600; }
 .form-field label { display: block; margin: 0 0 3px; font-size: 15px; font-weight: 600; }
 .form-field__description { display: block; margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.55; }
-.form-field input, .form-field textarea, .form-field select { width: 100%; font-size: 14px; border: 1px solid #ded9e8; border-radius: 2px; outline: none; background: #faf9fc; color: var(--text); }
+.form-field input, .form-field textarea, .form-field select { width: 100%; font-size: 12px; border: 1px solid #ded9e8; border-radius: 2px; outline: none; background: #faf9fc; color: var(--text); }
 .form-field input, .form-field select { min-height: 39px; padding: 8px 10px; }
 .form-field textarea { min-height: 78px; padding: 9px 10px; resize: vertical; }
 .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: var(--accent); background: #fff; }
